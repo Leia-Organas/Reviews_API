@@ -51,7 +51,7 @@ const getReviews = async (params, callback) => {
 }
 
 const getAverage = (array) => {
-  return array.reduce((a, b) => a + b) / array.length;
+  return (array.reduce((a, b) => a + b) / array.length).toFixed(2);
 }
 
 const getMetaData = async (params, callback) => {
@@ -75,6 +75,8 @@ const getMetaData = async (params, callback) => {
   `
   await client.query(charSelect)
     .then(async (results) => {
+      let tempRatings = {};
+      let finalRatings = {};
       let finalChars = {};
       let averagedChars = {};
       let charIds = results.rows.map(element => {
@@ -97,6 +99,30 @@ const getMetaData = async (params, callback) => {
         finalChars[element.name].value = averagedChars[element.characteristic_id];
       })
       metaData.characteristics = finalChars;
+      let reviews = await client.query(`
+        SELECT rating, recommend
+        FROM all_reviews
+        WHERE product_id = ${product_id};
+      `)
+
+      reviews.rows.map(review => {
+        if (review.recommend) {
+          metaData.recommended['1'] = metaData.recommended['1'] + 1;
+        } else {
+          metaData.recommended['0'] = metaData.recommended['0'] + 1;
+        }
+        if (tempRatings[review.rating]) {
+          tempRatings[review.rating].push(review.rating);
+        } else {
+          tempRatings[review.rating] = [1];
+        }
+      })
+
+      reviews.rows.forEach(review => {
+        finalRatings[review.rating] = tempRatings[review.rating].length;
+      })
+
+      metaData.ratings = finalRatings;
       callback(null, metaData);
     })
     .catch((err) => callback(err))
