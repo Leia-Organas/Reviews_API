@@ -29,12 +29,12 @@ module.exports.queries = {
         console.log(err ? err.stack : res.rows);
       })
 
-    client.query(`CREATE TABLE IF NOT EXISTS "characteristics"(
+    client.query(`CREATE TABLE IF NOT EXISTS all_chars(
       characteristic_id integer NOT NULL,
       product_id integer,
       "name" varchar,
-      CONSTRAINT characteristic_reviews_fkey FOREIGN KEY(characteristic_id) REFERENCES characteristics(characteristic_id),
-      CONSTRAINT characteristics_pkey PRIMARY KEY(characteristic_id));`, (err, res) => {
+      CONSTRAINT characteristic_reviews_fkey FOREIGN KEY(characteristic_id) REFERENCES all_chars(characteristic_id),
+      CONSTRAINT all_chars_pkey PRIMARY KEY(characteristic_id));`, (err, res) => {
         console.log(err ? err.stack : res.rows);
       })
 

@@ -60,7 +60,7 @@ const sequelize = new Sequelize(database, username, password, {
 //  public | Reviews                | table | anthonyliang
 // (4 rows)
 
-// COPY characteristics(characteristic_id, product_id, name) FROM '/Users/anthonyliang/SDC_data/characteristics.csv' DELIMITER ',' CSV HEADER;
+// COPY all_chars(characteristic_id, product_id, name) FROM '/Users/anthonyliang/SDC_data/characteristics.csv' DELIMITER ',' CSV HEADER;
 // COPY 3347679
 
 // COPY characteristic_reviews(id, characteristic_id, review_id, value) FROM '/Users/anthonyliang/SDC_data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER;
