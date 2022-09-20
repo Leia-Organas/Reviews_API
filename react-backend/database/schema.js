@@ -4,7 +4,7 @@ module.exports.queries = {
 
   createSchema: () => {
     client.query(`CREATE TABLE IF NOT EXISTS all_reviews(
-      review_id integer NOT NULL,
+      review_id SERIAL NOT NULL,
       product_id integer,
       rating integer,
       date varchar,
@@ -21,7 +21,7 @@ module.exports.queries = {
       })
 
     client.query(`CREATE TABLE IF NOT EXISTS photos(
-      photo_id integer NOT NULL,
+      photo_id SERIAL NOT NULL,
       review_id integer,
       url varchar,
       CONSTRAINT photos_pkey PRIMARY KEY(photo_id),
@@ -30,7 +30,7 @@ module.exports.queries = {
       })
 
     client.query(`CREATE TABLE IF NOT EXISTS all_chars(
-      characteristic_id integer NOT NULL,
+      characteristic_id SERIAL NOT NULL,
       product_id integer,
       "name" varchar,
       CONSTRAINT characteristic_reviews_fkey FOREIGN KEY(characteristic_id) REFERENCES all_chars(characteristic_id),
@@ -39,7 +39,7 @@ module.exports.queries = {
       })
 
     client.query(`CREATE TABLE IF NOT EXISTS characteristic_reviews(
-      id integer NOT NULL,
+      id SERIAL NOT NULL,
       characteristic_id integer,
       review_id integer,
       "value" integer,

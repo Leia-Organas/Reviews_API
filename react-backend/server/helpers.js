@@ -84,11 +84,13 @@ const getMetaData = async (params, callback) => {
         averagedChars[element.characteristic_id] = [];
         return element.characteristic_id;
       })
+
       let charQuery = await client.query(`
         SELECT *
         FROM characteristic_reviews
-        WHERE characteristic_id in (${charIds})
+        WHERE characteristic_id in (${charIds});
       `)
+
       charQuery.rows.forEach(element => {
         averagedChars[element.characteristic_id].push(element.value);
       })
@@ -128,4 +130,156 @@ const getMetaData = async (params, callback) => {
     .catch((err) => callback(err))
 }
 
-module.exports = { getReviews, getMetaData };
+const addReview = async (data, callback) => {
+  const client = await pool.connect();
+  let {
+    product_id,
+    rating,
+    summary,
+    body,
+    recommend,
+    reviewer_name,
+    reviewer_email,
+    photos,
+    characteristics
+  } = data;
+
+  let date = new Date().toISOString();
+  let reported = false;
+  let response = null;
+  let helpfulness = 0;
+
+  let max_id = await client.query(`
+    SELECT review_id
+    FROM all_reviews
+    ORDER BY review_id DESC
+    LIMIT 1
+  `)
+
+  let new_id = (max_id.rows[0].review_id) + 1;
+
+  let insert = `
+    INSERT INTO all_reviews (
+      review_id,
+      product_id,
+      rating,
+      date,
+      summary,
+      body,
+      recommend,
+      reported,
+      reviewer_name,
+      reviewer_email,
+      response,
+      helpfulness
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    RETURNING *;
+  `
+
+  let insertPhoto = `
+    INSERT INTO photos (
+      photo_id,
+      review_id,
+      url
+    )
+    VALUES ($1, $2, $3)
+    RETURNING *;
+  `
+
+  let max_photo_id = await client.query(`
+    SELECT photo_id
+    FROM photos
+    ORDER BY photo_id DESC
+    LIMIT 1
+  `)
+
+  let insertChar = `
+    INSERT INTO characteristic_reviews (
+      id,
+      characteristic_id,
+      review_id,
+      value
+    )
+    VALUES ($1, $2, $3, $4)
+  `
+
+  let max_char_id = await client.query(`
+    SELECT id
+    FROM characteristic_reviews
+    ORDER BY id DESC
+    LIMIT 1
+  `)
+
+  let new_photo_id = (max_photo_id.rows[0].photo_id) + 1;
+  let new_char_id = (max_char_id.rows[0].id) + 1;
+  let counter = 0;
+
+  await client.query(insert, [
+    new_id,
+    Number(product_id),
+    Number(rating),
+    date,
+    summary,
+    body,
+    recommend,
+    reported,
+    reviewer_name,
+    reviewer_email,
+    response,
+    helpfulness
+  ])
+    .then((results) => {
+      for (let i = 0; i < photos.length; i++) {
+        let newer_photo_id = new_photo_id + i;
+        client.query(insertPhoto, [
+          newer_photo_id,
+          new_id,
+          photos[i]
+        ])
+      }
+      for (let key in characteristics) {
+        let final_char_id = new_char_id + counter
+        client.query(insertChar, [
+          final_char_id,
+          key,
+          new_id,
+          characteristics[key]
+        ])
+        counter++
+      }
+      callback(null, results.rows)
+    })
+    .catch((err) => callback(err))
+}
+
+const setHelpful = async (params, callback) => {
+  const client = await pool.connect();
+  let { review_id } = params;
+
+  let update = `
+    UPDATE all_reviews
+    SET helpfulness = helpfulness + 1
+    WHERE review_id = ${review_id}
+  `
+
+  await client.query(update)
+    .then(results => callback(null, results.rows))
+    .catch(err => callback(err))
+}
+
+const setReport = async (params, callback) => {
+  const client = await pool.connect();
+  let { review_id } = params;
+
+  let remove = `
+    DELETE FROM all_reviews
+    WHERE review_id = ${review_id}
+  `
+
+  await client.query(remove)
+    .then(results => callback(null, results.rows))
+    .catch(err => callback(err))
+}
+
+module.exports = { getReviews, getMetaData, addReview, setHelpful };

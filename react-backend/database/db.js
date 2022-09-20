@@ -71,3 +71,8 @@ const sequelize = new Sequelize(database, username, password, {
 
 // COPY all_reviews(review_id, product_id, rating, summary, response, body, date, reviewer_name, helpfulness, reviewer_email, reported, recommend) FROM '/Users/anthonyliang/SDC_data/reviews.csv' DELIMITER ',' CSV HEADER;
 // COPY 5774952
+
+// GRANT ALL on all_reviews TO PUBLIC;
+// GRANT ALL on all_chars TO PUBLIC;
+// GRANT ALL on photos TO PUBLIC;
+// GRANT ALL on characteristic_reviews TO PUBLIC;
