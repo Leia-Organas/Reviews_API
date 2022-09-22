@@ -14,6 +14,6 @@ export let options = {
 }
 
 export default () => {
-  http.get('http://localhost:3000/reviews/meta?product_id=2');
+  http.get('http://localhost:3000/reviews?product_id=2&page=1&count=5&sort=relevant');
 }
 

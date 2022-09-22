@@ -27,7 +27,7 @@ const getReviews = async (params, callback) => {
     OFFSET ${page > 1 && count ? (page - 1) * count : 0};
   `
 
-  await client.query(select)
+  client.query(select)
     .then(async (results) => {
       let reviewIds = results.rows.map(review => {
         review.date = new Date(Number(review.date)).toISOString();
@@ -73,7 +73,7 @@ const getMetaData = async (params, callback) => {
   FROM all_chars
   WHERE product_id = ${product_id};
   `
-  await client.query(charSelect)
+  client.query(charSelect)
     .then(async (results) => {
       let tempRatings = {};
       let finalRatings = {};
@@ -215,7 +215,7 @@ const addReview = async (data, callback) => {
   let new_char_id = (max_char_id.rows[0].id) + 1;
   let counter = 0;
 
-  await client.query(insert, [
+  client.query(insert, [
     new_id,
     Number(product_id),
     Number(rating),
