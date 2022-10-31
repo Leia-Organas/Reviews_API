@@ -1,7 +1,7 @@
 # Reviews_API
 
 # Overview
-> This web application is a complete redesign of the Atelier retail web-portal. The goals are to create a modernized user interface for customers and increase sales through a customer-friendly design approach.
+> Backend system redesign of legacy e-commerce microservice to improve user experience and system effiencies.
 
 # Table of Contents
 1. [Description](#description)
